@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Tasks</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="mb-4">Your Tasks</h2>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <a href="{% url 'task_create' %}" class="btn btn-primary">Create New Task</a>
+        <a href="/accounts/logout/" class="btn btn-secondary">Logout</a>
+    </div>
+
+    <!-- FILTER AND SEARCH -->
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+                <option value="incomplete" {% if status == 'incomplete' %}selected{% endif %}>Incomplete</option>
+                <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="priority" class="form-select">
+                <option value="" {% if not priority_filter %}selected{% endif %}>All Priorities</option>
+                <option value="High" {% if priority_filter == 'High' %}selected{% endif %}>High</option>
+                <option value="Medium" {% if priority_filter == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="Low" {% if priority_filter == 'Low' %}selected{% endif %}>Low</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Search tasks...">
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    {% if tasks %}
+        <ul class="list-group">
+        {% for task in tasks %}
+            <li class="list-group-item d-flex justify-content-between align-items-center
+                        {% if task.completed %}list-group-item-success{% endif %}">
+                <span>
+                    {% if task.completed %}
+                        <s>{{ task.title }}</s> ✅
+                    {% else %}
+                        {{ task.title }}
+                    {% endif %}
+
+                    {% if task.due_date %} - Due: {{ task.due_date }}{% endif %}
+                    - Priority: 
+                    {% if task.priority == "High" %}
+                        <span class="text-danger">{{ task.priority }}</span>
+                    {% elif task.priority == "Medium" %}
+                        <span class="text-warning">{{ task.priority }}</span>
+                    {% else %}
+                        <span class="text-success">{{ task.priority }}</span>
+                    {% endif %}
+                </span>
+
+                <span>
+                    {% if not task.completed %}
+                        <a href="{% url 'task_complete' task.id %}" class="btn btn-success btn-sm">✔</a>
+                    {% endif %}
+                    <a href="{% url 'task_update' task.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </span>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No tasks yet.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
